@@ -1,5 +1,9 @@
 import lithops
+import pandas
 from lithops import Storage
+from lithops import FunctionExecutor
+
+#pip install -U pandasql
 
 config = {'lithops' : {'storage_bucket' : 'task2-sd'},
 
@@ -11,13 +15,13 @@ config = {'lithops' : {'storage_bucket' : 'task2-sd'},
                       'api_key': 'o2sIhjEWhaGB7AS1pH0XIF0ChfZg9Dks0go9eu937Y59'}
         }
 
-def hello_world(name):
-    return 'Hello {}!'.format(name)
+def getData(nu):
+    storage = Storage(config=config)
+    #data = storage.get_object('task2-sd', 'Registre_de_casos_de_COVID-19_a_Catalunya_per_municipi_i_sexe.csv')
+    data = storage.get_object('task2-sd', 'registres.csv')
+    return data
 
 if __name__ == '__main__':
-    #fexec = lithops.FunctionExecutor(config=config)
-    #fexec.call_async(hello_world, 'World')
-    #print(fexec.get_result())
-    storage = Storage(config=config)
-    data = storage.get_object('task2-sd', 'Registre_de_casos_de_COVID-19_a_Catalunya_per_municipi_i_sexe.csv')
-    print(data)
+    fexec = lithops.FunctionExecutor()
+    fexec.call_async(getData, 1)
+    print(fexec.get_result())
