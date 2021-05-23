@@ -1,5 +1,7 @@
 import lithops
-import pandas
+import pandas as pd
+from io import StringIO
+from pandasql import sqldf
 from lithops import Storage
 from lithops import FunctionExecutor
 
@@ -23,5 +25,15 @@ def getData(nu):
 
 if __name__ == '__main__':
     fexec = lithops.FunctionExecutor()
-    fexec.call_async(getData, 1)
-    print(fexec.get_result())
+    fexec.call_async(getData, '1')
+    data = fexec.get_result()
+    format_data = str(data[0:-1], 'utf-8')
+    #print(format_data)
+    
+    #pysqldf = lambda q: sqldf(q, globals())   ----------> Parece que funciona bien sin esto
+    database = pd.read_csv(StringIO(format_data))
+    #df1 = pysqldf("SELECT * FROM df")         ----------> Se puede utilizar sqldf en lugar de pysqldf
+    query = sqldf("SELECT * FROM database")
+    query2 = sqldf("SELECT * FROM database WHERE ComarcaDescripcio='BAIX LLOBREGAT'")
+    print(query)
+    print(query2)
