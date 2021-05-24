@@ -4,6 +4,8 @@ from io import StringIO
 from pandasql import sqldf
 from lithops import Storage
 from lithops import FunctionExecutor
+from pylab import *
+from PIL import Image
 
 #pip install -U pandasql
 #prueba push 2
@@ -34,7 +36,35 @@ if __name__ == '__main__':
     #pysqldf = lambda q: sqldf(q, globals())   ----------> Parece que funciona bien sin esto
     database = pd.read_csv(StringIO(format_data))
     #df1 = pysqldf("SELECT * FROM df")         ----------> Se puede utilizar sqldf en lugar de pysqldf
+    database["TipusCasData"]=pd.to_datetime(database["TipusCasData"])
+    database = database.sort_values(by="TipusCasData")
+
+    
     query = sqldf("SELECT * FROM database")
     query2 = sqldf("SELECT * FROM database WHERE ComarcaDescripcio='BAIX LLOBREGAT'")
-    print(query)
-    print(query2)
+    #print(query)
+    #print(query2)
+    comarca = "BAIX LLOBREGAT"
+    numCasos = sqldf("SELECT NumCasos FROM database WHERE ComarcaDescripcio='"+comarca+"'")
+    tipusCasData = sqldf("SELECT TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"'")
+
+    print(numCasos)
+    print(tipusCasData)
+
+    listNumCasos = str(numCasos.to_numpy()).replace('\n',',').replace('[','').replace(']','').split(',')
+    listTipusCasData = str(tipusCasData.to_numpy()).replace('\n',',').replace('[','').replace(']','').replace('00:00:00.000000','').split(',')
+
+    plot(listTipusCasData, listNumCasos)
+    xlabel('Temps historic')
+    ylabel('Casos detectats')
+    title('Casos covid')
+    draw()
+    savefig("graficoSD",dpi=300)
+    close()
+    img = Image.open("./graficoSD.png")
+    img.show()
+
+
+
+
+
