@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     listNumCasos = str(numCasos.to_numpy()).replace('\n',',').replace('[','').replace(']','').split(',')
 
-    listTipusCasData = str(tipusCasData.to_numpy()).replace('\n',',').replace('[','').replace(']','').replace('00:00:00.000000','').replace('2020-','20').replace('2021-','21').replace("'",'').replace(' ','').split(',')
+    listTipusCasData = str(tipusCasData.to_numpy()).replace('\n',',').replace('[','').replace(']','').replace('00:00:00.000000','').replace('2020','20').replace('2021','21').replace("'",'').replace(' ','').split(',')
     print (listTipusCasData)
     
     #si hacemos esto hay dos valores Y para cada X
