@@ -8,7 +8,7 @@ from pylab import *
 from PIL import Image
 
 #pip install -U pandasql
-#prueba push 2
+#test final
 
 config = {'lithops' : {'storage_bucket' : 'task2-sd'},
 
