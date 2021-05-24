@@ -6,7 +6,7 @@ from lithops import Storage
 from lithops import FunctionExecutor
 
 #pip install -U pandasql
-#prueba push
+#prueba push 2
 
 config = {'lithops' : {'storage_bucket' : 'task2-sd'},
 
