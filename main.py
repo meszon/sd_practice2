@@ -6,6 +6,7 @@ from lithops import Storage
 from lithops import FunctionExecutor
 from pylab import *
 from PIL import Image
+import datetime
 
 #pip install -U pandasql
 #test final
@@ -36,12 +37,12 @@ if __name__ == '__main__':
     #pysqldf = lambda q: sqldf(q, globals())   ----------> Parece que funciona bien sin esto
     database = pd.read_csv(StringIO(format_data))
     #df1 = pysqldf("SELECT * FROM df")         ----------> Se puede utilizar sqldf en lugar de pysqldf
-    database["TipusCasData"]=pd.to_datetime(database["TipusCasData"])
+    database["TipusCasData"]= pd.to_datetime(database["TipusCasData"])
     database = database.sort_values(by="TipusCasData")
-
+    #database.groupby(database['TipusCasData'].dt.strftime('%M'))['NumCasos'].sum()
     
-    query = sqldf("SELECT * FROM database")
-    query2 = sqldf("SELECT * FROM database WHERE ComarcaDescripcio='BAIX LLOBREGAT'")
+    #query = sqldf("SELECT * FROM database")
+    #query2 = sqldf("SELECT * FROM database WHERE ComarcaDescripcio='BAIX LLOBREGAT'")
     #print(query)
     #print(query2)
     comarca = "BAIX LLOBREGAT"
@@ -52,14 +53,26 @@ if __name__ == '__main__':
     print(tipusCasData)
 
     listNumCasos = str(numCasos.to_numpy()).replace('\n',',').replace('[','').replace(']','').split(',')
-    listTipusCasData = str(tipusCasData.to_numpy()).replace('\n',',').replace('[','').replace(']','').replace('00:00:00.000000','').split(',')
+
+    listTipusCasData = str(tipusCasData.to_numpy()).replace('\n',',').replace('[','').replace(']','').replace('00:00:00.000000','').replace('2020-','20').replace('2021-','21').replace("'",'').replace(' ','').split(',')
+    print (listTipusCasData)
+    
+    #si hacemos esto hay dos valores Y para cada X
+    newList = []
+    for element in listTipusCasData:
+        element = element[:-5]
+        newList.append(element)
+
+    #listTipusCasData = newList
+    #print (listTipusCasData)
 
     plot(listTipusCasData, listNumCasos)
+    
     xlabel('Temps historic')
     ylabel('Casos detectats')
     title('Casos covid')
     draw()
-    savefig("graficoSD",dpi=300)
+    savefig("graficoSD",dpi=400)
     close()
     img = Image.open("./graficoSD.png")
     img.show()
