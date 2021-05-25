@@ -21,35 +21,28 @@ config = {'lithops' : {'storage_bucket' : 'task2-sd'},
                       'api_key': 'o2sIhjEWhaGB7AS1pH0XIF0ChfZg9Dks0go9eu937Y59'}
         }
 
-def getData(nu):
+def getData(select):
     storage = Storage(config=config)
-    #data = storage.get_object('task2-sd', 'Registre_de_casos_de_COVID-19_a_Catalunya_per_municipi_i_sexe.csv')
-    data = storage.get_object('task2-sd', 'registres.csv')
-    return data
+    data = storage.get_object('task2-sd', 'Registre_de_casos_de_COVID-19_a_Catalunya_per_municipi_i_sexe.csv')
+    #data = storage.get_object('task2-sd', 'registres.csv')
 
-if __name__ == '__main__':
-    fexec = lithops.FunctionExecutor()
-    fexec.call_async(getData, '1')
-    data = fexec.get_result()
     format_data = str(data[0:-1], 'utf-8')
-    
-    #pysqldf = lambda q: sqldf(q, globals())   ----------> Parece que funciona bien sin esto
     database = pd.read_csv(StringIO(format_data))
     #df1 = pysqldf("SELECT * FROM df")         ----------> Se puede utilizar sqldf en lugar de pysqldf
     database["TipusCasData"]= pd.to_datetime(database["TipusCasData"])
     database = database.sort_values(by="TipusCasData")
+    query = sqldf(select)
 
-    #Query consulta n. casos por comarca
-    query = sqldf("SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
 
-    fig, ax = plt.subplots(figsize=(16, 7))
-    ax.barh(query['ComarcaDescripcio'], query['TotalCasos'])
-    plt.show()
-    #---------------------------------------------------------------------------------------------------------------
+    return query
+
+if __name__ == '__main__':
+    fexec = lithops.FunctionExecutor()
 
     #Query consulta n casos por tiempo en una comarca
     comarca = "BAIX LLOBREGAT"
-    query = sqldf("SELECT NumCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"'")
+    fexec.call_async(getData, "SELECT NumCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' GROUP BY TipusCasData")
+    query = fexec.get_result()
 
     fig, ax = plt.subplots(figsize=(16, 7))
     query['TipusCasData'] = query['TipusCasData'].str.replace('00:00:00.000000','',regex=True)
@@ -57,4 +50,16 @@ if __name__ == '__main__':
     query['TipusCasData'] = query['TipusCasData'].str.replace('2021','21',regex=True)
     ax.plot(query['TipusCasData'], query['NumCasos'])
     plt.show()
+
     #---------------------------------------------------------------------------------------------------------------
+    #Query consulta n. casos por comarca
+    #fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
+    fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database WHERE ComarcaDescripcio > 'L%'  GROUP BY ComarcaDescripcio")
+    query = fexec.get_result()
+
+    fig, ax = plt.subplots(figsize=(16, 7))
+    ax.barh(query['ComarcaDescripcio'], query['TotalCasos'])
+    plt.show()
+    #---------------------------------------------------------------------------------------------------------------
+
+    
