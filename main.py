@@ -43,7 +43,7 @@ if __name__ == '__main__':
     print(fexec.get_result())
 
     #Query consulta n casos por tiempo en una comarca
-    print("Indica la comarca ha buscar entre les mostrades:")
+    """print("Indica la comarca ha buscar entre les mostrades:")
     comarca = input().upper()
     fexec.call_async(getData, "SELECT NumCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' GROUP BY TipusCasData")
     query = fexec.get_result()
@@ -53,19 +53,34 @@ if __name__ == '__main__':
     query['TipusCasData'] = query['TipusCasData'].str.replace('2020','20',regex=True)
     query['TipusCasData'] = query['TipusCasData'].str.replace('2021','21',regex=True)
     ax.plot(query['TipusCasData'], query['NumCasos'])
-    plt.show()
+    plt.show()"""
 
     #---------------------------------------------------------------------------------------------------------------
     #Query consulta n. casos por comarca
-    print("Indica el rang de comarques(1.A-L, 2.M-Z):")  
-    if input == 1: rango = '<'
+    """print("Indica el rang de comarques (1.A-L, 2.M-Z):")  
+    rango = input()
+    if rango == '1': rango = '<'
     else: rango = '>='
     fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database WHERE ComarcaDescripcio " + rango + " 'L%'  GROUP BY ComarcaDescripcio")
     query = fexec.get_result()
 
     fig, ax = plt.subplots(figsize=(16, 7))
     ax.barh(query['ComarcaDescripcio'], query['TotalCasos'])
-    plt.show()
+    plt.show()"""
     #---------------------------------------------------------------------------------------------------------------
+    #Query consulta n. casos en un mes de todas las comarcas
+    #Recomendado no superar dos meses
+    print("Indica la data d'inici (YYYY-MM-DD):")  
+    data_inici = input()
+    print("Indica la data de fi (YYYY-MM-DD):")  
+    data_fi = input()
+    fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE TipusCasData BETWEEN '" + data_inici + "' AND '" + data_fi + "' GROUP BY TipusCasData")
+    query = fexec.get_result()
 
+    fig, ax = plt.subplots(figsize=(16, 7))
+    query['TipusCasData'] = query['TipusCasData'].str.replace('00:00:00.000000','',regex=True)
+    query['TipusCasData'] = query['TipusCasData'].str.replace('2020-','',regex=True)
+    query['TipusCasData'] = query['TipusCasData'].str.replace('2021-','',regex=True)
+    ax.plot(query['TipusCasData'], query['TotalCasos'])
+    plt.show()
     
