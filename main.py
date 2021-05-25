@@ -39,47 +39,22 @@ if __name__ == '__main__':
     database["TipusCasData"]= pd.to_datetime(database["TipusCasData"])
     database = database.sort_values(by="TipusCasData")
 
-    comarca = "BAIX LLOBREGAT"
-    numCasos = sqldf("SELECT NumCasos FROM database WHERE ComarcaDescripcio='"+comarca+"'")
-    tipusCasData = sqldf("SELECT TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"'")
-
-    #print(numCasos)
-    #print(tipusCasData)
-
-    #listNumCasos = str(numCasos.to_numpy()).replace('\n',',').replace('[','').replace(']','').split(',')
-
-    #listTipusCasData = str(tipusCasData.to_numpy()).replace('\n',',').replace('[','').replace(']','').replace('00:00:00.000000','').replace('2020','20').replace('2021','21').replace("'",'').replace(' ','').split(',')
-    #print (listTipusCasData)
-    
-    #si hacemos esto hay dos valores Y para cada X
-    #newList = []
-    #for element in listTipusCasData:
-        #element = element[:-5]
-        #newList.append(element)
-
-    #listTipusCasData = newList
-    #print (listTipusCasData)
-
-    #plot(listTipusCasData, listNumCasos)
-    
-    #xlabel('Temps historic')
-    #ylabel('Casos detectats')
-    #title('Casos covid')
-    #draw()
-    #savefig("graficoSD",dpi=400)
-    #close()
-    #img = Image.open("./graficoSD.png")
-    #img.show()
-
+    #Query consulta n. casos por comarca
     query = sqldf("SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
-    print(query)
-
-    numCasos = query['TotalCasos']
-    comarcaDescripcio = query['ComarcaDescripcio']
-    print(numCasos)
-    print(comarcaDescripcio)
 
     fig, ax = plt.subplots(figsize=(16, 7))
-    ax.barh(comarcaDescripcio, numCasos)
+    ax.barh(query['ComarcaDescripcio'], query['TotalCasos'])
     plt.show()
+    #---------------------------------------------------------------------------------------------------------------
 
+    #Query consulta n casos por tiempo en una comarca
+    comarca = "BAIX LLOBREGAT"
+    query = sqldf("SELECT NumCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"'")
+
+    fig, ax = plt.subplots(figsize=(16, 7))
+    query['TipusCasData'] = query['TipusCasData'].str.replace('00:00:00.000000','',regex=True)
+    query['TipusCasData'] = query['TipusCasData'].str.replace('2020','20',regex=True)
+    query['TipusCasData'] = query['TipusCasData'].str.replace('2021','21',regex=True)
+    ax.plot(query['TipusCasData'], query['NumCasos'])
+    plt.show()
+    #---------------------------------------------------------------------------------------------------------------
