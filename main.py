@@ -38,9 +38,13 @@ def getData(select):
 
 if __name__ == '__main__':
     fexec = lithops.FunctionExecutor()
+    
+    fexec.call_async(getData, "SELECT ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
+    print(fexec.get_result())
 
     #Query consulta n casos por tiempo en una comarca
-    comarca = "BAIX LLOBREGAT"
+    print("Indica la comarca ha buscar entre les mostrades:")
+    comarca = input().upper()
     fexec.call_async(getData, "SELECT NumCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' GROUP BY TipusCasData")
     query = fexec.get_result()
 
@@ -53,8 +57,10 @@ if __name__ == '__main__':
 
     #---------------------------------------------------------------------------------------------------------------
     #Query consulta n. casos por comarca
-    #fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
-    fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database WHERE ComarcaDescripcio > 'L%'  GROUP BY ComarcaDescripcio")
+    print("Indica el rang de comarques(1.A-L, 2.M-Z):")  
+    if input == 1: rango = '<'
+    else: rango = '>='
+    fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database WHERE ComarcaDescripcio " + rango + " 'L%'  GROUP BY ComarcaDescripcio")
     query = fexec.get_result()
 
     fig, ax = plt.subplots(figsize=(16, 7))
