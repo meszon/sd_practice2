@@ -6,8 +6,7 @@ from lithops import Storage
 from lithops import FunctionExecutor
 from pylab import *
 import matplotlib.pyplot as plt
-from PIL import Image
-import datetime
+from lithops.multiprocessing import Pool
 
 #pip install -U pandasql
 
@@ -21,43 +20,44 @@ config = {'lithops' : {'storage_bucket' : 'task2-sd'},
                       'api_key': 'o2sIhjEWhaGB7AS1pH0XIF0ChfZg9Dks0go9eu937Y59'}
         }
 
+def graph_plot(query, x, y):
+    fig, ax = plt.subplots(figsize=(16, 7))
+    query[x] = query[x].str.replace('00:00:00.000000','',regex=True)
+    query[x] = query[x].str.replace('2020','20',regex=True)
+    query[x] = query[x].str.replace('2021','21',regex=True)
+    ax.plot(query[x], query[y])
+    plt.show()
+
+
 def getData(select):
     storage = Storage(config=config)
     data = storage.get_object('task2-sd', 'Registre_de_casos_de_COVID-19_a_Catalunya_per_municipi_i_sexe.csv')
-    #data = storage.get_object('task2-sd', 'registres.csv')
 
     format_data = str(data[0:-1], 'utf-8')
     database = pd.read_csv(StringIO(format_data))
-    #df1 = pysqldf("SELECT * FROM df")         ----------> Se puede utilizar sqldf en lugar de pysqldf
     database["TipusCasData"]= pd.to_datetime(database["TipusCasData"])
     database = database.sort_values(by="TipusCasData")
     query = sqldf(select)
-
 
     return query
 
 if __name__ == '__main__':
     fexec = lithops.FunctionExecutor()
     
-    fexec.call_async(getData, "SELECT ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
-    print(fexec.get_result())
-
     #Query consulta n casos por tiempo en una comarca
-    """print("Indica la comarca ha buscar entre les mostrades:")
+    fexec.call_async(getData, "SELECT ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
+    comarques = fexec.get_result()
+    print(comarques)
+    print("Indica la comarca ha buscar entre les mostrades:")
     comarca = input().upper()
     fexec.call_async(getData, "SELECT NumCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' GROUP BY TipusCasData")
     query = fexec.get_result()
 
-    fig, ax = plt.subplots(figsize=(16, 7))
-    query['TipusCasData'] = query['TipusCasData'].str.replace('00:00:00.000000','',regex=True)
-    query['TipusCasData'] = query['TipusCasData'].str.replace('2020','20',regex=True)
-    query['TipusCasData'] = query['TipusCasData'].str.replace('2021','21',regex=True)
-    ax.plot(query['TipusCasData'], query['NumCasos'])
-    plt.show()"""
-
+    graph_plot(query, 'TipusCasData', 'NumCasos')
     #---------------------------------------------------------------------------------------------------------------
+
     #Query consulta n. casos por comarca
-    """print("Indica el rang de comarques (1.A-L, 2.M-Z):")  
+    print("Indica el rang de comarques (1.A-L, 2.M-Z):")  
     rango = input()
     if rango == '1': rango = '<'
     else: rango = '>='
@@ -66,8 +66,9 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(figsize=(16, 7))
     ax.barh(query['ComarcaDescripcio'], query['TotalCasos'])
-    plt.show()"""
+    plt.show()
     #---------------------------------------------------------------------------------------------------------------
+
     #Query consulta n. casos en un mes de todas las comarcas
     #Recomendado no superar dos meses
     print("Indica la data d'inici (YYYY-MM-DD):")  
@@ -77,10 +78,21 @@ if __name__ == '__main__':
     fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE TipusCasData BETWEEN '" + data_inici + "' AND '" + data_fi + "' GROUP BY TipusCasData")
     query = fexec.get_result()
 
-    fig, ax = plt.subplots(figsize=(16, 7))
-    query['TipusCasData'] = query['TipusCasData'].str.replace('00:00:00.000000','',regex=True)
-    query['TipusCasData'] = query['TipusCasData'].str.replace('2020-','',regex=True)
-    query['TipusCasData'] = query['TipusCasData'].str.replace('2021-','',regex=True)
-    ax.plot(query['TipusCasData'], query['TotalCasos'])
-    plt.show()
+    graph_plot(query, 'TipusCasData', 'TotalCasos')
+    #---------------------------------------------------------------------------------------------------------------
+
+    #Queries consulta n. casos de una comarca
+    print(comarques)
+    print("Indica la comarca ha buscar entre les mostrades:")
+    comarca = input().upper()
+    query = Pool().map(getData, [
+        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-01-01' AND '2020-03-01' GROUP BY TipusCasData",
+        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-03-01' AND '2020-05-01' GROUP BY TipusCasData",
+        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-05-01' AND '2020-07-01' GROUP BY TipusCasData",
+        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-07-01' AND '2020-09-01' GROUP BY TipusCasData",
+        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-09-01' AND '2020-11-01' GROUP BY TipusCasData",
+        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-11-01' AND '2021-01-01' GROUP BY TipusCasData"
+    ])
     
+    for q in query:
+        graph_plot(q, 'TipusCasData', 'TotalCasos')
