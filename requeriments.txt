@@ -1,0 +1,12 @@
+#############################
+# Raul Mesa - Victor Sentis #
+# SD Practica 2 - 2021      #
+# Requeriments:  	     #
+#############################
+# lithops
+# io
+# pandas
+# pandasql
+# pylab
+# matplotlib
+# pylab

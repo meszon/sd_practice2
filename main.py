@@ -8,8 +8,12 @@ from pylab import *
 import matplotlib.pyplot as plt
 from lithops.multiprocessing import Pool
 
-#pip install -U pandasql
+###
+#   Raul Mesa - Victor Sentis
+#   SD Practica 2 - 2021
+###
 
+#IBM config
 config = {'lithops' : {'storage_bucket' : 'task2-sd'},
 
           'ibm_cf':  {'endpoint': 'https://eu-gb.functions.cloud.ibm.com/api/v1/namespaces/raul.mesa%40estudiants.urv.cat_dev/actions/task2-sd-test/prova',
@@ -20,6 +24,7 @@ config = {'lithops' : {'storage_bucket' : 'task2-sd'},
                       'api_key': 'o2sIhjEWhaGB7AS1pH0XIF0ChfZg9Dks0go9eu937Y59'}
         }
 
+#Funcion para mostrar la grafica de una consulta
 def graph_plot(query, x, y):
     fig, ax = plt.subplots(figsize=(16, 7))
     query[x] = query[x].str.replace('00:00:00.000000','',regex=True)
@@ -28,7 +33,7 @@ def graph_plot(query, x, y):
     ax.plot(query[x], query[y])
     plt.show()
 
-
+#Funcion para obtener los datos del IBM COS
 def getData(select):
     storage = Storage(config=config)
     data = storage.get_object('task2-sd', 'Registre_de_casos_de_COVID-19_a_Catalunya_per_municipi_i_sexe.csv')
@@ -96,3 +101,4 @@ if __name__ == '__main__':
     
     for q in query:
         graph_plot(q, 'TipusCasData', 'TotalCasos')
+    #---------------------------------------------------------------------------------------------------------------
