@@ -3,9 +3,7 @@
 # SD Practica 2 - 2021      #
 # Requeriments:  	     #
 #############################
-# lithops
-# io
-# pandas
-# pandasql
-# pylab
-# matplotlib
+lithops==2.3.3
+pandas==1.2.4
+pandasql==0.7.3
+matplotlib==3.4.2
