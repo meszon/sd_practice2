@@ -1,9 +1,3 @@
-##########################################
-# Raul Mesa - Victor Sentis              #
-# https://github.com/meszon/sd_practice2 #
-# SD Practica 2 - 2021                   #
-# Requeriments:  	                  #
-##########################################
 lithops==2.3.3
 pandas==1.2.4
 pandasql==0.7.3
