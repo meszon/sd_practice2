@@ -7,22 +7,17 @@ from lithops import FunctionExecutor
 from pylab import *
 import matplotlib.pyplot as plt
 from lithops.multiprocessing import Pool
+from config_file import config
 
 ###
 #   Raul Mesa - Victor Sentis
 #   SD Practica 2 - 2021
 ###
 
-#IBM config
-config = {'lithops' : {'storage_bucket' : 'task2-sd'},
-
-          'ibm_cf':  {'endpoint': 'https://eu-gb.functions.cloud.ibm.com/api/v1/namespaces/raul.mesa%40estudiants.urv.cat_dev/actions/task2-sd-test/prova',
-                      'namespace': 'raul.mesa@estudiants.urv.cat_dev',
-                      'api_key': '3da6529e-b610-4665-8e4d-3ad27ece6698:LHMIbuRZY9iEdB6URVyxUZGd9iZK8togDqPqr11mtryoutCnAizwV8vCfdgCLpZY'},
-
-          'ibm_cos': {'region': 'eu-de',
-                      'api_key': 'o2sIhjEWhaGB7AS1pH0XIF0ChfZg9Dks0go9eu937Y59'}
-        }
+#Strings con los objetos de IBM Cloud
+objectCSV_1 = 'Registre_de_casos_de_COVID-19_a_Catalunya_per_municipi_i_sexe.csv'
+objectCSV_2 = 'Dades_del_mapa_urban_stic_de_Catalunya.csv'
+objectCSV_3 = 'Incid_ncia_de_la_COVID-19_a_Catalunya.csv'
 
 #Funcion para mostrar la grafica de una consulta
 def graph_plot(query, x, y):
@@ -33,13 +28,49 @@ def graph_plot(query, x, y):
     ax.plot(query[x], query[y])
     plt.show()
 
+#Funcion para Preprocesar los datos CSV
+def processData(select):
+    storage = Storage(config=config)
+    
+    data = storage.get_object('task2-sd', objectCSV_1)
+    format_data = str(data[0:-1], 'utf-8')
+    database_old = pd.read_csv(StringIO(format_data))
+    database1 = database_old[['TipusCasData','ComarcaDescripcio','MunicipiCodi','MunicipiDescripcio','SexeDescripcio','NumCasos']].copy()
+
+    #database1["TipusCasData"]= pd.to_datetime(database1["TipusCasData"])
+    #database1 = database1.sort_values(by="TipusCasData")
+
+    data = storage.get_object('task2-sd', objectCSV_2)
+    format_data = str(data[0:-1], 'utf-8')
+    database_old = pd.read_csv(StringIO(format_data))
+    database2 = database_old[['Any','Codi_ine_5_txt','Poblacio_padro','Superficie_ha']].copy()
+    database2.rename(columns={'Codi_ine_5_txt':'MunicipiCodi', 'Poblacio_padro':'PoblacioAnual'}, inplace=True)
+
+    merged_left = pd.merge(left=database1, right=database2, how='outer', left_on='MunicipiCodi', right_on='MunicipiCodi')
+
+    query = sqldf(select)
+    return query
+
+
+
+
+
+
+
+
 #Funcion para obtener los datos del IBM COS
 def getData(select):
     storage = Storage(config=config)
-    data = storage.get_object('task2-sd', 'Registre_de_casos_de_COVID-19_a_Catalunya_per_municipi_i_sexe.csv')
+    data = storage.get_object('task2-sd', objectCSV_1)
 
     format_data = str(data[0:-1], 'utf-8')
     database = pd.read_csv(StringIO(format_data))
+    
+    '''del(database['SexeCodi'])
+    del(database['TipusCasDescripcio'])
+    del(database['DistricteCodi'])
+    del(database['DistricteDescripcio'])'''
+
     database["TipusCasData"]= pd.to_datetime(database["TipusCasData"])
     database = database.sort_values(by="TipusCasData")
     query = sqldf(select)
@@ -49,7 +80,10 @@ def getData(select):
 if __name__ == '__main__':
     fexec = lithops.FunctionExecutor()
     
+    fexec.call_async(processData, "SELECT * FROM merged_left")
+    print(fexec.get_result())
     #Query consulta n casos por tiempo en una comarca
+'''
     fexec.call_async(getData, "SELECT ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
     comarques = fexec.get_result()
     print(comarques)
@@ -102,3 +136,4 @@ if __name__ == '__main__':
     for q in query:
         graph_plot(q, 'TipusCasData', 'TotalCasos')
     #---------------------------------------------------------------------------------------------------------------
+'''
