@@ -1,3 +1,4 @@
+from typing import final
 import lithops
 import pandas as pd
 from io import StringIO
@@ -54,13 +55,24 @@ def processData(select):
 
     final_database1 = pd.merge(left=database1, right=database2, how='left', left_on='TipusCasData', right_on='TipusCasData')
 
-    #final_database1.to_csv('final_database1.csv', index = False)
-    #storage.put_object('task2-sd', 'final_database1.csv', final_database1)
+    final_database1.to_csv('database.csv', index = False)
+    database = open('database.csv', 'r')
+    storage.put_object('task2-sd', 'database.csv', database.read())
+    database.close()
+    #storage.put_object('task2-sd', 'database.csv', final_database1.to_string())
 
-    query = sqldf(select)
-    return query
+    #query = sqldf(select)
+    #return query
+    return final_database1
 
-
+'''
+def uploadData(nameFile):
+    storage = Storage(config=config)
+    database = open(nameFile, 'r')
+    storage.put_object('task2-sd', nameFile, database.read())
+    database.close()
+    return "Upload"
+'''
 
 #Funcion para obtener los datos del IBM COS
 def getData(select):
@@ -84,7 +96,9 @@ if __name__ == '__main__':
     
     #fexec.call_async(processData, "SELECT * FROM database3")
     fexec.call_async(processData, "SELECT * FROM final_database1")
-    print(fexec.get_result())
+    final_database = fexec.get_result()
+    print(final_database)
+    
 
     
 '''
