@@ -1,4 +1,3 @@
-from typing import final
 import lithops
 import pandas as pd
 from io import StringIO
@@ -32,7 +31,6 @@ def graph_plot(query, x, y):
     query[x] = query[x].str.replace('2021','21',regex=True)
     ax.plot(query[x], query[y])
     plt.show()
-
 
 #Funcion para Preprocesar los datos CSV
 def processData(select):
@@ -89,19 +87,23 @@ def getData(select):
     return query
 
 
+def executeQuery(select):
+    fexec = lithops.FunctionExecutor()
+    fexec.call_async(getData, select)
+    query = fexec.get_result()
+    return query
 
 
 if __name__ == '__main__':
-    fexec = lithops.FunctionExecutor()
-    
-    #fexec.call_async(processData, "SELECT * FROM database3")
-    fexec.call_async(processData, "SELECT * FROM final_database1")
-    final_database = fexec.get_result()
-    print(final_database)
-    
 
-    
-'''
+    fexec = lithops.FunctionExecutor()
+
+    #fexec.call_async(processData, "SELECT * FROM database3")
+    #fexec.call_async(processData, "SELECT * FROM final_database1")
+    #final_database = fexec.get_result()
+    #print(final_database)
+
+
     #Query consulta n casos por tiempo en una comarca
     fexec.call_async(getData, "SELECT ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
     comarques = fexec.get_result()
@@ -110,10 +112,10 @@ if __name__ == '__main__':
     comarca = input().upper()
     fexec.call_async(getData, "SELECT NumCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' GROUP BY TipusCasData")
     query = fexec.get_result()
-
+    
     graph_plot(query, 'TipusCasData', 'NumCasos')
     #---------------------------------------------------------------------------------------------------------------
-
+'''
     #Query consulta n. casos por comarca
     print("Indica el rang de comarques (1.A-L, 2.M-Z):")  
     rango = input()
