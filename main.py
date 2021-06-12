@@ -22,6 +22,7 @@ objectCSV_3 = 'Vacunacio_COVID.csv'
 objectCSV_4 = 'Dades_del_mapa_urban_stic_de_Catalunya.csv'
 objectCSV_6 = 'Preu_mitja_lloguer_municipi.csv'
 
+objectCSV_DB = "database.csv"
 
 #Funcion para mostrar la grafica de una consulta
 def graph_plot(query, x, y):
@@ -75,7 +76,8 @@ def uploadData(nameFile):
 #Funcion para obtener los datos del IBM COS
 def getData(select):
     storage = Storage(config=config)
-    data = storage.get_object('task2-sd', objectCSV_1)
+    #data = storage.get_object('task2-sd', objectCSV_1)
+    data = storage.get_object('task2-sd', objectCSV_DB)
 
     format_data = str(data[0:-1], 'utf-8')
     database = pd.read_csv(StringIO(format_data))
