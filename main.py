@@ -34,7 +34,7 @@ def graph_plot(query, x, y):
     plt.show()
 
 #Funcion para Preprocesar los datos CSV
-def processData(select):
+def processData(nu):
     storage = Storage(config=config)
 
     data = storage.get_object('task2-sd', objectCSV_1)
@@ -48,7 +48,8 @@ def processData(select):
     format_data = str(data[0:-1], 'utf-8')
     database_old = pd.read_csv(StringIO(format_data))
     database2 = database_old[['Data','Defuncions diàries','Altes diàries','Total de defuncions','Total d\'altes',]].copy()
-    database2.rename(columns={'Data':'TipusCasData'}, inplace=True)
+    database2.rename(columns={'Data':'TipusCasData','Defuncions diàries':'DefuncionsDiaries','Altes diàries':'AltesDiaries','Total de defuncions':'TotalDefuncions',
+    'Total d\'altes': 'TotalAltes'}, inplace=True)
     #database2["TipusCasData"]= pd.to_datetime(database2["TipusCasData"])
     #database2.sort_values(by="TipusCasData", inplace=True)
 
@@ -77,7 +78,7 @@ def uploadData(nameFile):
 def getData(select):
     storage = Storage(config=config)
     #data = storage.get_object('task2-sd', objectCSV_1)
-    data = storage.get_object('task2-sd', objectCSV_DB)
+    data = storage.get_object('task2-sd', 'database.csv')
 
     format_data = str(data[0:-1], 'utf-8')
     database = pd.read_csv(StringIO(format_data))
@@ -104,8 +105,13 @@ if __name__ == '__main__':
     #fexec.call_async(processData, "SELECT * FROM final_database1")
     #final_database = fexec.get_result()
     #print(final_database)
+    #fexec.call_async(processData, "None")
+    #print(fexec.get_result)
 
-
+    fexec.call_async(getData, "SELECT TipusCasData, AltesDiaries FROM database WHERE AltesDiaries IS NOT NULL")
+    query = fexec.get_result()
+    print(query)
+'''
     #Query consulta n casos por tiempo en una comarca
     fexec.call_async(getData, "SELECT ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
     comarques = fexec.get_result()
@@ -117,7 +123,7 @@ if __name__ == '__main__':
     
     graph_plot(query, 'TipusCasData', 'NumCasos')
     #---------------------------------------------------------------------------------------------------------------
-'''
+
     #Query consulta n. casos por comarca
     print("Indica el rang de comarques (1.A-L, 2.M-Z):")  
     rango = input()
