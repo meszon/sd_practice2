@@ -65,14 +65,6 @@ def processData(nu):
     #return query
     return final_database1
 
-'''
-def uploadData(nameFile):
-    storage = Storage(config=config)
-    database = open(nameFile, 'r')
-    storage.put_object('task2-sd', nameFile, database.read())
-    database.close()
-    return "Upload"
-'''
 
 #Funcion para obtener los datos del IBM COS
 def getData(select):
@@ -90,79 +82,13 @@ def getData(select):
     return query
 
 
-def executeQuery(select):
-    fexec = lithops.FunctionExecutor()
-    fexec.call_async(getData, select)
-    query = fexec.get_result()
-    return query
-
-
 if __name__ == '__main__':
 
     fexec = lithops.FunctionExecutor()
 
-    #fexec.call_async(processData, "SELECT * FROM database3")
-    #fexec.call_async(processData, "SELECT * FROM final_database1")
-    #final_database = fexec.get_result()
-    #print(final_database)
     #fexec.call_async(processData, "None")
     #print(fexec.get_result)
 
     fexec.call_async(getData, "SELECT TipusCasData, AltesDiaries FROM database WHERE AltesDiaries IS NOT NULL")
     query = fexec.get_result()
     print(query)
-'''
-    #Query consulta n casos por tiempo en una comarca
-    fexec.call_async(getData, "SELECT ComarcaDescripcio FROM database GROUP BY ComarcaDescripcio")
-    comarques = fexec.get_result()
-    print(comarques)
-    print("Indica la comarca ha buscar entre les mostrades:")
-    comarca = input().upper()
-    fexec.call_async(getData, "SELECT NumCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' GROUP BY TipusCasData")
-    query = fexec.get_result()
-    
-    graph_plot(query, 'TipusCasData', 'NumCasos')
-    #---------------------------------------------------------------------------------------------------------------
-
-    #Query consulta n. casos por comarca
-    print("Indica el rang de comarques (1.A-L, 2.M-Z):")  
-    rango = input()
-    if rango == '1': rango = '<'
-    else: rango = '>='
-    fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, ComarcaDescripcio FROM database WHERE ComarcaDescripcio " + rango + " 'L%'  GROUP BY ComarcaDescripcio")
-    query = fexec.get_result()
-
-    fig, ax = plt.subplots(figsize=(16, 7))
-    ax.barh(query['ComarcaDescripcio'], query['TotalCasos'])
-    plt.show()
-    #---------------------------------------------------------------------------------------------------------------
-
-    #Query consulta n. casos en un mes de todas las comarcas
-    #Recomendado no superar dos meses
-    print("Indica la data d'inici (YYYY-MM-DD):")  
-    data_inici = input()
-    print("Indica la data de fi (YYYY-MM-DD):")  
-    data_fi = input()
-    fexec.call_async(getData, "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE TipusCasData BETWEEN '" + data_inici + "' AND '" + data_fi + "' GROUP BY TipusCasData")
-    query = fexec.get_result()
-
-    graph_plot(query, 'TipusCasData', 'TotalCasos')
-    #---------------------------------------------------------------------------------------------------------------
-
-    #Queries consulta n. casos de una comarca
-    print(comarques)
-    print("Indica la comarca ha buscar entre les mostrades:")
-    comarca = input().upper()
-    query = Pool().map(getData, [
-        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-01-01' AND '2020-03-01' GROUP BY TipusCasData",
-        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-03-01' AND '2020-05-01' GROUP BY TipusCasData",
-        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-05-01' AND '2020-07-01' GROUP BY TipusCasData",
-        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-07-01' AND '2020-09-01' GROUP BY TipusCasData",
-        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-09-01' AND '2020-11-01' GROUP BY TipusCasData",
-        "SELECT SUM(NumCasos) AS TotalCasos, TipusCasData FROM database WHERE ComarcaDescripcio='"+comarca+"' AND TipusCasData BETWEEN '2020-11-01' AND '2021-01-01' GROUP BY TipusCasData"
-    ])
-    
-    for q in query:
-        graph_plot(q, 'TipusCasData', 'TotalCasos')
-    #---------------------------------------------------------------------------------------------------------------
-'''
