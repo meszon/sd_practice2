@@ -8,5 +8,6 @@ ibm_cf:
   
 ibm_cos:
  region: eu-de
- acces_key: s3.eu-de.cloud-object-storage.appdomain.cloud
- secret_key: s3.private.eu-de.cloud-object-storage.appdomain.cloud
+ acces_key: cda20cafc352434ca7a19733701f7dcf
+ secret_key: 9c60d9c4157701c893486b76989e985a77a9def1c5eb8f60
+ api_key: o2sIhjEWhaGB7AS1pH0XIF0ChfZg9Dks0go9eu937Y59

@@ -25,13 +25,34 @@ objectCSV_6 = 'Preu_mitja_lloguer_municipi.csv'
 objectCSV_DB = "database.csv"
 
 #Funcion para mostrar la grafica de una consulta
+#def graph_plot(query, x, y):
+    #fig, ax = plt.subplots(figsize=(16, 7))
+    #query[x] = query[x].str.replace('00:00:00.000000','',regex=True)
+    #query[x] = query[x].str.replace('2020','20',regex=True)
+    #query[x] = query[x].str.replace('2021','21',regex=True)
+    #ax.plot(query[x], query[y])
+    #plt.show()
+
 def graph_plot(query, x, y):
     fig, ax = plt.subplots(figsize=(16, 7))
-    query[x] = query[x].str.replace('00:00:00.000000','',regex=True)
-    query[x] = query[x].str.replace('2020','20',regex=True)
-    query[x] = query[x].str.replace('2021','21',regex=True)
+    query[x] = formatar(query[x])
     ax.plot(query[x], query[y])
     plt.show()
+
+def graph_plot_multiline(query1, x1, y1, label1, query2, x2, y2, label2):
+    fig, ax = plt.subplots(figsize=(16, 7))
+    query1[x1] = formatar(query1[x1])
+    ax.plot(query1[x1], query1[y1], label = label1)
+    query2[x2] = formatar(query2[x2])
+    ax.plot(query2[x2], query2[y2], label = label2)
+    plt.legend()
+    plt.show()
+
+def formatar(query):
+    query = query.str.replace('00:00:00.000000','',regex=True)
+    query = query.str.replace('2020','20',regex=True)
+    query = query.str.replace('2021','21',regex=True)
+    return query
 
 #Funcion para Preprocesar los datos CSV
 def processData(nu):
@@ -89,6 +110,10 @@ if __name__ == '__main__':
     #fexec.call_async(processData, "None")
     #print(fexec.get_result)
 
-    fexec.call_async(getData, "SELECT TipusCasData, AltesDiaries FROM database WHERE AltesDiaries IS NOT NULL")
-    query = fexec.get_result()
-    print(query)
+    #Query de altas diarias durante el año 2020
+    query = Pool().map(getData, ["SELECT DISTINCT TipusCasData, AltesDiaries FROM database WHERE AltesDiaries IS NOT NULL",
+                              "SELECT DISTINCT TipusCasData, DefuncionsDiaries FROM database WHERE AltesDiaries IS NOT NULL"])
+    #print(query)
+
+    graph_plot_multiline(query[0], 'TipusCasData', 'AltesDiaries', 'Altes diàries', query[1], 'TipusCasData', 'DefuncionsDiaries', 'Defuncions diàries')
+
