@@ -4,8 +4,6 @@ from io import StringIO
 from lithops import Storage
 from lithops import FunctionExecutor
 
-#from config_file import config
-
 ###
 #   Raul Mesa - Victor Sentis
 #   SD Practica 2 - 2021
@@ -46,7 +44,7 @@ if __name__ == '__main__':
     fexec = lithops.FunctionExecutor(runtime='meszon/lithops-custom-runtimev38:0.1', runtime_memory=2048)
     fexec.call_async(processData, "None")
     fexec.wait()
-    
+
     
 
 
