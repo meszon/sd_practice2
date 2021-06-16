@@ -7,7 +7,7 @@ from lithops import FunctionExecutor
 from pylab import *
 import matplotlib.pyplot as plt
 from lithops.multiprocessing import Pool
-from config_file import config
+#from config_file import config
 
 ###
 #   Raul Mesa - Victor Sentis
