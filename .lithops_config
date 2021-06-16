@@ -38,7 +38,7 @@ ibm_cf:
     namespace   : 'raul.mesa@estudiants.urv.cat_dev'
     api_key     : '3da6529e-b610-4665-8e4d-3ad27ece6698:LHMIbuRZY9iEdB6URVyxUZGd9iZK8togDqPqr11mtryoutCnAizwV8vCfdgCLpZY'
     #namespace_id : <NAMESPACE_ID> # Only for IAM auth
-    runtime     : 'meszon/lithops-custom-runtimev38:01'
+    runtime     : 'meszon/lithops-custom-runtimev38:0.1'
 
 #code_engine:
     #kubectl_config: <Location for kubectl yaml file>
