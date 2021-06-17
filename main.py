@@ -41,7 +41,7 @@ def processData(nu):
 
 if __name__ == '__main__':
 
-    fexec = lithops.FunctionExecutor(runtime='meszon/lithops-custom-runtimev38:0.1', runtime_memory=2048)
+    fexec = lithops.FunctionExecutor(runtime_memory=2048)
     fexec.call_async(processData, "None")
     fexec.wait()
 
